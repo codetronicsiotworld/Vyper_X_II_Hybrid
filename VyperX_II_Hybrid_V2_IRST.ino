@@ -11,6 +11,7 @@
 //                                                                                                                //
 //   Required libraries:                                                                                          //
 //     - <MotorControl.h>                                                                                         //
+//     - Adafruit NeoPixel (Library Manager)                                                                      //
 //     - RP2350 core (https://github.com/earlephilhower/arduino-pico)                                            //
 //                                                                                                                //
 //   Recommended upload settings (Generic RP2350):                                                                //
@@ -21,7 +22,7 @@
 
 
 #include <MotorControl.h>
-#include <Adafruit_NeoPixel.h>  // install via Library Manager: "Adafruit NeoPixel"
+#include <Adafruit_NeoPixel.h>
 
 MotorControl motorRight(2, 3, 1, 'M');  // MotorControl (name) Motor Pin (Dir, Pwm, Direction, Mode(Motordriver / H-bridge))
 MotorControl motorLeft(4, 5, 1, 'M');
@@ -105,31 +106,31 @@ const unsigned long turnDelay = 100;
 const int CLK_DELAY = 0;
 const int LINE_THRESHOLD = 500;
 
-// Accelerations settings
+// Acceleration ramp (see acceleration())
 bool resetAccel = false;
 bool startAccel = false;
 bool reset = false;
 unsigned long lastIncrementTime = 0;
-int Accel = 0;
-int aclval = 0;
+int Accel = 0;   // current ramped speed
+int aclval = 0;  // ramp target (set by the presets)
 
-// Timer settings
+// Head-on push timer (see checkTimer)
 unsigned long timerStart = 0;
-bool timerActive = false;  // Indicates whether the timer is active
-bool flag = false;         // Flag to initiate the function
-int front = 0;             // Variable to be set to 30 after 3 seconds
+bool timerActive = false;
+bool flag = false;
+int front = 0;  // speed adjustment applied while pushing head-on
 
-// Stall Timer settings
+// Stalemate push timer (see checkTimerStall)
 unsigned long stalltimerStart = 0;
-bool stalltimerActive = false;  // Indicates whether the timer is active
-bool stallflag = false;         // Flag to initiate the function
-int stallfront = 0;             // Variable to be set to 30 after 3 seconds
+bool stalltimerActive = false;
+bool stallflag = false;
+int stallfront = 0;  // extra power added after a 2 s stalemate
 
-// Debounce settings
+// Line-sensor debounce (see timedebounce)
 unsigned long debounceStart = 0;
-bool debounceActive = false;  // Indicates whether the timer is active
-bool debounce = false;        // Flag to initiate the function
-bool debounceOk = false;      // Flag to be set to true after 10 miliseconds
+bool debounceActive = false;
+bool debounce = false;
+bool debounceOk = false;  // true once the line has been seen for 25 ms
 
 int currentpreset = 0;
 
@@ -139,8 +140,8 @@ void setup() {
   pinMode(MODE, INPUT_PULLDOWN);  // floating -> LOW -> Auto (failsafe)
 
   // Auto / sumo sensors
-  pinMode(Leftfollower, INPUT_PULLUP);   //sense line L
-  pinMode(Rightfollower, INPUT_PULLUP);  //sense line R when black =1, when white =0
+  pinMode(Leftfollower, INPUT_PULLUP);   // analog line followers:
+  pinMode(Rightfollower, INPUT_PULLUP);  // low reading = white line
   pinMode(FS, INPUT);
   pinMode(FL, INPUT);
   pinMode(FR, INPUT);

@@ -1,5 +1,5 @@
+// Print every sensor value plus the current state (enable in autoMode()).
 void finalcheck() {
-  //checkvalue of all sensor
 
   Serial.print("LL: ");
   Serial.print(Lvalue);

@@ -19,74 +19,70 @@ void customMove3() {
   motorRight.speed(180);
 }
 
+// After 'flag' has been high for 500 ms, set front = 40 (head-on push adjust).
+// Resets whenever flag goes low.
 void checkTimer() {
-  // If flag is pulled high, start the timer
   if (flag) {
     if (!timerActive) {
-      // Timer has not started, so start it
       timerStart = millis();
       timerActive = true;
     }
 
-    // If 3 seconds have passed, set 'front' to 30
     if (millis() - timerStart >= 500) {
       front = 40;
-      timerActive = false;  // Disable the timer after completing
+      timerActive = false;
     }
   } else {
-    // If flag is low, reset the timer and keep 'front' unchanged
     timerActive = false;
     timerStart = 0;
     front = 0;
   }
 }
 
+// After 'stallflag' has been high for 2 s (stalemate push), set
+// stallfront = 150 for extra power. Resets whenever stallflag goes low.
 void checkTimerStall() {
-  // If flag is pulled high, start the timer
   if (stallflag) {
     if (!stalltimerActive) {
-      // Timer has not started, so start it
       stalltimerStart = millis();
       stalltimerActive = true;
     }
 
-    // If 3 seconds have passed, set 'front' to 30
     if (millis() - stalltimerStart >= 2000) {
       stallfront = 150;
-      stalltimerActive = false;  // Disable the timer after completing
+      stalltimerActive = false;
     }
   } else {
-    // If flag is low, reset the timer and keep 'front' unchanged
     stalltimerActive = false;
     stalltimerStart = 0;
     stallfront = 0;
   }
 }
 
+// Line-sensor debounce: debounceOk goes true once 'debounce' has been
+// held high for 25 ms.
 void timedebounce() {
-  // If debounce is pulled high, start the timer
   if (debounce) {
     if (!debounceActive) {
-      // Timer has not started, so start it
       debounceStart = millis();
       debounceActive = true;
     }
 
-    // If 10 milliseconds have passed, set 'debounceOk' to true
     if (millis() - debounceStart >= 25) {
       debounceOk = true;
-      debounceActive = false;  // Disable the timer after completing
+      debounceActive = false;
     }
   } else {
-    // If debounce is low, reset the timer and keep 'debounceOk' false
     debounceActive = false;
     debounceStart = 0;
     debounceOk = false;
   }
 }
 
+// ---- Basic moves ----
+
 void stop() {
-  motorLeft.speed(0);  // stop
+  motorLeft.speed(0);
   motorRight.speed(0);
 }
 

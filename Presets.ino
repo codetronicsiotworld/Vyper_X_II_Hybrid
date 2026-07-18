@@ -1,5 +1,7 @@
+// Opening move for the LEFT attack IR: 3 short creep-forward pulses,
+// each followed by a 2 s guarded wait (sensors stay active throughout).
 void preset1() {
-  for (int i = 0; i <= 2; i++) {  // Repeat 3 times
+  for (int i = 0; i <= 2; i++) {
     readSensors();
     delay(10);
     motorLeft.speed(50 * flbias);
@@ -17,12 +19,12 @@ void preset1() {
     aclval = 0;
     front = 0;
 
-    unsigned long startTime = millis();  // Record the start time
+    unsigned long startTime = millis();
 
-    while (millis() - startTime < 2000) {  // Check if 2 seconds have passed
-      readSensors();                       // Continuously read sensors
+    while (millis() - startTime < 2000) {
+      readSensors();
       timedebounce();
-      actOnSensors();  // Continuously act on sensors
+      actOnSensors();
       if (executePG == false) {
         break;
       }
@@ -34,8 +36,10 @@ void preset1() {
   aclval = 65;
 }
 
+// Opening move for the FRONT attack IR: same creep-and-wait pattern as
+// preset1 but repeated 10 times, with stall detection active.
 void preset2() {
-  for (int i = 0; i <= 9; i++) {  // Repeat 10 times
+  for (int i = 0; i <= 9; i++) {
     readSensors();
     timedebounce();
     delay(10);
@@ -56,13 +60,13 @@ void preset2() {
     aclval = 0;
     front = 0;
 
-    unsigned long startTime = millis();  // Record the start time
+    unsigned long startTime = millis();
 
-    while (millis() - startTime < 2000) {  // Check if 2 seconds have passed
-      readSensors();                       // Continuously read sensors
+    while (millis() - startTime < 2000) {
+      readSensors();
       timedebounce();
-      actOnSensors();     // Continuously act on sensors
-      checkTimerStall();  // Continuosly check for stuck opponenent
+      actOnSensors();
+      checkTimerStall();
       if (executePG == false) {
         break;
       }
@@ -74,6 +78,7 @@ void preset2() {
   aclval = 65;
 }
 
+// Scripted dodge-and-flank move (currently unused).
 void preset3() {
   motorLeft.speed(-200);
   motorRight.speed(200);
@@ -95,6 +100,7 @@ void preset3() {
   aclval = 60;
 }
 
+// Opening move for the RIGHT attack IR: lower top speed, strong front boost.
 void preset4() {
   aclval = 40;
   front = 100;

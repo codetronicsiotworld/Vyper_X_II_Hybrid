@@ -3,23 +3,23 @@ void runpreset() {
   processpreset();
 
   switch (currentpreset) {
-    case 0:  // No preset to run
+    case 0:  // No preset selected
       aclval = 50;
       break;
 
-    case 1:  // Preset 1 to be ran
+    case 1:
       for (int i = 0; i < 1; i++) {
         preset1();
       }
       break;
 
-    case 2:  // Preset 2 to be ran
+    case 2:
       for (int i = 0; i < 1; i++) {
         preset2();
       }
       break;
 
-    case 3:  // Preset 3 to be ran
+    case 3:
       for (int i = 0; i < 1; i++) {
         preset4();
       }
@@ -27,6 +27,7 @@ void runpreset() {
   }
 }
 
+// Latch the preset chosen by the attack-select IR inputs (L / F / R).
 void processpreset() {
   if (LV) {
     currentpreset = 1;
@@ -37,27 +38,25 @@ void processpreset() {
   }
 }
 
+// Ramp Accel from startValue up to maxValue, one step every incrementSpeed ms.
 void acceleration(int startValue, int maxValue, unsigned long incrementSpeed) {
-  // Check if resetAccel is true to reset the counter
   if (resetAccel) {
-    Accel = startValue;  // Reset to startValue
-    resetAccel = false;  // Reset the flag after resetting
+    Accel = startValue;
+    resetAccel = false;
   }
 
-  // Increment only if startAccel is true
   if (startAccel) {
-    // Check if it's time to increment based on incrementSpeed
     if (millis() - lastIncrementTime >= incrementSpeed) {
-      lastIncrementTime = millis();  // Update the last increment time
+      lastIncrementTime = millis();
 
       if (Accel < maxValue) {
-        Accel++;         // Increment the value
-        readSensors();   // Continuously read sensors
-        actOnSensors();  // Continuously act on sensors
+        Accel++;
+        readSensors();
+        actOnSensors();
       } else {
-        Accel = maxValue;  // Cap the value at maximum
-        readSensors();     // Continuously read sensors
-        actOnSensors();    // Continuously act on sensors
+        Accel = maxValue;
+        readSensors();
+        actOnSensors();
       }
     }
   }
@@ -69,6 +68,7 @@ void resetflags() {
   reset = false;
 }
 
+// Main autonomous match loop: runs until the IR stop signal.
 void mainprgm() {
 
   statusAutoRunning();  // solid red: match running
@@ -79,35 +79,39 @@ void mainprgm() {
     checkTimer();
     checkTimerStall();
 
-    readSensors();  // Calculate the sensor state
+    readSensors();
     timedebounce();
     //testbias();
-    actOnSensors();  // Act based on the sensor state
+    actOnSensors();
     delay(3);
   }
 }
 
+// Same as mainprgm() but runs forever (button-started testing).
 void buttonmainprgm() {
 
-  statusAutoRunning();  // solid red: match running
+  statusAutoRunning();
   startAccel = true;
   resetAccel = true;
   while (true) {
     acceleration(0, aclval, 3);
     checkTimer();
 
-    readSensors();  // Calculate the sensor state
+    readSensors();
     timedebounce();
-    actOnSensors();  // Act based on the sensor state
+    actOnSensors();
     delay(3);
   }
 }
 
-// Function to read sensors and update `senState`
+// Read line + proximity sensors into senState.
+// A white line triggers an immediate (debounced) edge-avoid manoeuvre.
+// Otherwise senState is a bitmask of the proximity sensors:
+//   L = 8, FL = 16, F = 32, FR = 64, R = 128
 void readSensors() {
   senState = 0;
 
-  if (Lvalue < LINE_THRESHOLD) {
+  if (Lvalue < LINE_THRESHOLD) {  // white line on the left
     senState = 1;
     debounce = true;
     if (debounceOk == true) {
@@ -119,7 +123,7 @@ void readSensors() {
       Turnright();
       delay(115);
     }
-  } else if (Rvalue < LINE_THRESHOLD) {
+  } else if (Rvalue < LINE_THRESHOLD) {  // white line on the right
     senState = 2;
     debounce = true;
     if (debounceOk == true) {
@@ -131,7 +135,7 @@ void readSensors() {
       Turnleft();
       delay(115);
     }
-  } else if (Rvalue < LINE_THRESHOLD && Lvalue < LINE_THRESHOLD) {
+  } else if (Rvalue < LINE_THRESHOLD && Lvalue < LINE_THRESHOLD) {  // both lines
     senState = 3;
     debounce = true;
     if (debounceOk == true) {
@@ -145,7 +149,7 @@ void readSensors() {
     }
   }
 
-  if (senState == 0) {  // Only read proximity sensors if on black field
+  if (senState == 0) {  // on the black field: read proximity sensors
     if (LSv) senState += 8;
     if (FLv) senState += 16;
     if (FSv) senState += 32;
@@ -154,6 +158,7 @@ void readSensors() {
   }
 }
 
+// Debug helper: drive straight with bias applied (enable in mainprgm).
 void testbias() {
   if (senState == 0) {
     motorLeft.speed(Accel * flbias);
@@ -161,13 +166,13 @@ void testbias() {
   }
 }
 
-// Function to act on sensor states
+// Act on the sensor state from readSensors().
 void actOnSensors() {
 
   delay(5);
 
   switch (senState) {
-    case 0:  // No line sensors, no opponent
+    case 0:  // Nothing detected: drive forward with acceleration
       if (!reset) {
         resetAccel = true;
         startAccel = true;
@@ -195,8 +200,6 @@ void actOnSensors() {
     case 32:  // Front proximity sensor
 
       flag = true;
-      // motorLeft.speed((Accel + (front)) * flbias);
-      // motorRight.speed((Accel + (front)) * frbias);
       motorLeft.speed(Accel * flbias);
       motorRight.speed(Accel * frbias);
       break;
@@ -207,13 +210,13 @@ void actOnSensors() {
       motorRight.speed(125);
       break;
 
-    case 192:  //Error R + FR
+    case 192:  // Error R + FR
     case 64:   // Front-right proximity sensor
       motorLeft.speed(175);
       motorRight.speed(30);
       break;
 
-    case 224:  //Error R + FR + F
+    case 224:  // Error R + FR + F
     case 96:   // Front-right & front sensors
       motorLeft.speed(125);
       motorRight.speed(30);
@@ -226,11 +229,11 @@ void actOnSensors() {
       startAccel = true;
       break;
 
-    case 120:  //Error L + FL + F + FR
-    case 136:  //Error L + R
-    case 240:  //Error R + FR + F + FL
-    case 248:  //Error L + FL + F + FR + R
-    case 112:  // Front-left, front & front-right sensors
+    case 120:  // Error L + FL + F + FR
+    case 136:  // Error L + R
+    case 240:  // Error R + FR + F + FL
+    case 248:  // Error L + FL + F + FR + R
+    case 112:  // Front-left, front & front-right sensors: full push
       flag = true;
       stallflag = true;
       motorLeft.speed((Accel - front * 0.8 + stallfront) * flbias);

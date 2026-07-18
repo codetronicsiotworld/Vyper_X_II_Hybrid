@@ -35,6 +35,7 @@ float mapValue(int inputValue) {
   }
 }
 
+// Debug print of the raw and mapped RC values.
 void scheck() {
   Serial.print(vFB);
   Serial.print("  ");
@@ -52,8 +53,8 @@ void scheck() {
 // One iteration of the RC controller (was loop() in the RC sketch).
 void rcmode() {
 
-  vFB = pulseIn(FB, HIGH);  //read the signal value from RC receiver (throttle)
-  vLR = pulseIn(LR, HIGH);  //read the signal value from RC receiver (steering)
+  vFB = pulseIn(FB, HIGH);  // receiver pulse widths in us
+  vLR = pulseIn(LR, HIGH);  // (~1000-2000, 1500 = centre)
 
   if ((vFB >= 850 && vFB <= 2150) && (vLR >= 850 && vLR <= 2150)) {
 
