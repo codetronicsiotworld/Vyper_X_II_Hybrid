@@ -96,7 +96,7 @@ bool rcMode = false;
 
 #define executePG digitalRead(START)
 
-// Motor biases (LBias/RBias for Auto, fl/fr/bl/brbias for RC) are defined in
+// Motor biases (fl/fr/bl/brbias, shared by RC and Auto) are defined in
 // Bias_Config.ino: loaded from LittleFS /bias.cfg at boot, tunable over serial.
 
 // Constants for delays

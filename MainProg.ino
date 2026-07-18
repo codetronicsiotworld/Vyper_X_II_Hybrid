@@ -156,8 +156,8 @@ void readSensors() {
 
 void testbias() {
   if (senState == 0) {
-    motorLeft.speed(Accel * LBias);
-    motorRight.speed(Accel * RBias);
+    motorLeft.speed(Accel * flbias);
+    motorRight.speed(Accel * frbias);
   }
 }
 
@@ -175,8 +175,8 @@ void actOnSensors() {
       }
       flag = false;
       stallflag = false;
-      motorLeft.speed(Accel * LBias);
-      motorRight.speed(Accel * RBias);
+      motorLeft.speed(Accel * flbias);
+      motorRight.speed(Accel * frbias);
       break;
 
     case 8:  // Left proximity sensor
@@ -195,10 +195,10 @@ void actOnSensors() {
     case 32:  // Front proximity sensor
 
       flag = true;
-      // motorLeft.speed((Accel + (front)) * LBias);
-      // motorRight.speed((Accel + (front)) * RBias);
-      motorLeft.speed(Accel * LBias);
-      motorRight.speed(Accel * RBias);
+      // motorLeft.speed((Accel + (front)) * flbias);
+      // motorRight.speed((Accel + (front)) * frbias);
+      motorLeft.speed(Accel * flbias);
+      motorRight.speed(Accel * frbias);
       break;
 
     case 56:  // Error L + FL + F
@@ -233,8 +233,8 @@ void actOnSensors() {
     case 112:  // Front-left, front & front-right sensors
       flag = true;
       stallflag = true;
-      motorLeft.speed((Accel - front * 0.8 + stallfront) * LBias);
-      motorRight.speed((Accel - front * 0.8 + stallfront) * RBias);
+      motorLeft.speed((Accel - front * 0.8 + stallfront) * flbias);
+      motorRight.speed((Accel - front * 0.8 + stallfront) * frbias);
       break;
   }
 }

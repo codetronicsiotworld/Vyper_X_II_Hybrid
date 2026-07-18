@@ -9,9 +9,10 @@
 //   REQUIRED upload setting:  Flash Size: 2MB (Sketch: 1984KB, FS: 64KB)                                         //
 //   (with "No FS" selected, LittleFS.begin() fails and the compiled defaults below are used instead)             //
 //                                                                                                                //
-//   Tune over the Serial Monitor (9600 baud, newline line ending). Commands:                                     //
+//   One shared set of four biases (fl, fr, bl, br) is used by BOTH modes: RC applies them per direction,         //
+//   and Auto uses fl/fr for its (forward) drive. Tune over the Serial Monitor (9600 baud, newline ending):       //
 //       show          - print the current bias values                                                            //
-//       l 0.945       - set a bias (keys: l, r = Auto left/right; fl, fr, bl, br = RC trims)                     //
+//       fl 0.945      - set a bias (keys: fl, fr = forward left/right; bl, br = backward left/right)             //
 //       save          - write the current values to /bias.cfg (persists across reflash)                          //
 //       load          - re-read /bias.cfg, discarding unsaved changes                                            //
 //       defaults      - restore the compiled defaults (RAM only until 'save')                                    //
@@ -27,17 +28,13 @@
 // Compiled-in defaults, used when no config file exists yet (first boot after a
 // full erase) or when LittleFS cannot be mounted.
 // VX Alpha R1.00 L0.86
-const float LBiasDefault = 0.945;   // Auto mode, left motor
-const float RBiasDefault = 1.00;    // Auto mode, right motor
-const float flbiasDefault = 1.00;   // RC forward, left motor
-const float frbiasDefault = 1.00;   // RC forward, right motor
-const float blbiasDefault = 1.00;   // RC backward, left motor
-const float brbiasDefault = 1.00;   // RC backward, right motor
+const float flbiasDefault = 0.945;  // forward, left motor (also Auto drive)
+const float frbiasDefault = 1.00;   // forward, right motor (also Auto drive)
+const float blbiasDefault = 1.00;   // backward, left motor
+const float brbiasDefault = 1.00;   // backward, right motor
 
 // Runtime values used by the drive code (MainProg / Presets / RC_Mode).
 // Loaded from /bias.cfg at boot, tunable over serial.
-float LBias = LBiasDefault;
-float RBias = RBiasDefault;
 float flbias = flbiasDefault;
 float frbias = frbiasDefault;
 float blbias = blbiasDefault;
@@ -55,8 +52,6 @@ float clampBias(float v) {
 }
 
 float* biasByKey(String key) {
-  if (key == "l") return &LBias;
-  if (key == "r") return &RBias;
   if (key == "fl") return &flbias;
   if (key == "fr") return &frbias;
   if (key == "bl") return &blbias;
@@ -65,8 +60,6 @@ float* biasByKey(String key) {
 }
 
 void biasApplyDefaults() {
-  LBias = LBiasDefault;
-  RBias = RBiasDefault;
   flbias = flbiasDefault;
   frbias = frbiasDefault;
   blbias = blbiasDefault;
@@ -74,11 +67,7 @@ void biasApplyDefaults() {
 }
 
 void printBias() {
-  Serial.print("[bias] Auto  L=");
-  Serial.print(LBias, 3);
-  Serial.print("  R=");
-  Serial.print(RBias, 3);
-  Serial.print("   RC  FL=");
+  Serial.print("[bias] FL=");
   Serial.print(flbias, 3);
   Serial.print("  FR=");
   Serial.print(frbias, 3);
@@ -109,10 +98,6 @@ bool loadBiasConfig() {
 bool saveBiasConfig() {
   File f = LittleFS.open(BIAS_FILE, "w");
   if (!f) return false;
-  f.print("l=");
-  f.println(LBias, 3);
-  f.print("r=");
-  f.println(RBias, 3);
   f.print("fl=");
   f.println(flbias, 3);
   f.print("fr=");
@@ -187,7 +172,7 @@ void handleBiasCommand(String cmd) {
     }
   }
 
-  Serial.println("[bias] unknown command - try: show | save | load | defaults | <l|r|fl|fr|bl|br> <value>");
+  Serial.println("[bias] unknown command - try: show | save | load | defaults | <fl|fr|bl|br> <value>");
 }
 
 // Call every loop() iteration - non-blocking, reads one command per line.

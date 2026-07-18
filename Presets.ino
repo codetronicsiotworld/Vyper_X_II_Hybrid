@@ -2,13 +2,13 @@ void preset1() {
   for (int i = 0; i <= 2; i++) {  // Repeat 3 times
     readSensors();
     delay(10);
-    motorLeft.speed(50 * LBias);
-    motorRight.speed(50 * RBias);
+    motorLeft.speed(50 * flbias);
+    motorRight.speed(50 * frbias);
     delay(80);
     readSensors();
     delay(10);
-    motorLeft.speed(100 * LBias);
-    motorRight.speed(100 * RBias);
+    motorLeft.speed(100 * flbias);
+    motorRight.speed(100 * frbias);
     delay(120);
     readSensors();
     delay(10);
@@ -39,14 +39,14 @@ void preset2() {
     readSensors();
     timedebounce();
     delay(10);
-    motorLeft.speed(50 * LBias);
-    motorRight.speed(50 * RBias);
+    motorLeft.speed(50 * flbias);
+    motorRight.speed(50 * frbias);
     delay(80);
     readSensors();
     timedebounce();
     delay(10);
-    motorLeft.speed(100 * LBias);
-    motorRight.speed(100 * RBias);
+    motorLeft.speed(100 * flbias);
+    motorRight.speed(100 * frbias);
     delay(120);
     readSensors();
     timedebounce();
