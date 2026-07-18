@@ -9,15 +9,18 @@
 //   The pin uses an internal pulldown, so a disconnected/floating switch defaults to Auto.                       //
 //   Flip the switch, then reset/power-cycle to change modes.                                                     //
 //                                                                                                                //
+//   Board: "Hermes" from the Codetronics Exocore board package (seamless compiling & uploading).                 //
+//   Boards Manager URL (File > Preferences > Additional boards manager URLs):                                    //
+//       https://raw.githubusercontent.com/codetronicsiotworld/codetronics-exocore/main/package_kratos_hermes_vyper_index.json
+//   Install "Codetronics Exocore" in the Boards Manager, then select Tools > Board > Hermes.                     //
+//                                                                                                                //
 //   Required libraries:                                                                                          //
 //     - <MotorControl.h>                                                                                         //
 //     - Adafruit NeoPixel (Library Manager)                                                                      //
-//     - RP2350 core (https://github.com/earlephilhower/arduino-pico)                                            //
 //                                                                                                                //
-//   Recommended upload settings (Generic RP2350):                                                                //
-//       Flash Size: 2MB (Sketch: 1984KB, FS: 64KB)   |   CPU Speed: 150 MHz   |   Optimize: -O3                  //
-//   The FS partition holds the persistent motor-bias calibration (/bias.cfg) - see Bias_Config.ino.              //
-//   It survives reflashing; only a full-chip erase or changing the Flash Size layout clears it.                  //
+//   The flash layout must include a LittleFS partition (e.g. Flash Size: 2MB - Sketch: 1984KB, FS: 64KB).        //
+//   It holds the persistent motor-bias calibration (/bias.cfg, see Bias_Config.ino), which survives              //
+//   reflashing; only a full-chip erase or changing the flash layout clears it.                                   //
 //________________________________________________________________________________________________________________//
 
 

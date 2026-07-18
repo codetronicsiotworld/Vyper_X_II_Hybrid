@@ -50,11 +50,18 @@ Auto match, commands are processed once the match stops.
 
 ## Building & uploading
 
-- Board core: [arduino-pico (RP2350)](https://github.com/earlephilhower/arduino-pico)
-- Libraries: `MotorControl`, `Adafruit NeoPixel` (Library Manager)
-- Upload settings (Generic RP2350):
-  - **Flash Size: 2MB (Sketch: 1984KB, FS: 64KB)** ← required, the FS holds the bias config
-  - CPU Speed: 150 MHz, Optimize: -O3
+This project uses the custom **[Codetronics Exocore](https://github.com/codetronicsiotworld/codetronics-exocore)**
+board package with the **Hermes** board for seamless compiling and uploading.
+
+1. In the Arduino IDE, open **File → Preferences** and add this to *Additional boards manager URLs*:
+   ```
+   https://raw.githubusercontent.com/codetronicsiotworld/codetronics-exocore/main/package_kratos_hermes_vyper_index.json
+   ```
+2. Open **Tools → Board → Boards Manager**, search for **Codetronics Exocore** and install it.
+3. Select **Tools → Board → Hermes**.
+4. Install the libraries: `MotorControl`, `Adafruit NeoPixel` (Library Manager).
+5. If a Flash Size option is shown, pick a layout with an FS partition
+   (e.g. **2MB — Sketch: 1984KB, FS: 64KB**) — the filesystem stores the bias calibration.
 
 ## File overview
 
