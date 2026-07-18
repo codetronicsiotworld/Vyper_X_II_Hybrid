@@ -11,10 +11,7 @@ bool ledState = LOW;               // State of the LED
 float vFB = 0;  // Raw throttle pulse (us)
 float vLR = 0;  // Raw steering pulse (us)
 
-const float frbias = 1.00;
-const float flbias = 1.00;
-const float brbias = 1.00;
-const float blbias = 1.00;
+// frbias/flbias/brbias/blbias are defined in Bias_Config.ino (persistent, tunable over serial).
 
 const float rotate = 0.7;
 

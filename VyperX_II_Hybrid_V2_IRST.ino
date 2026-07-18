@@ -14,7 +14,9 @@
 //     - RP2350 core (https://github.com/earlephilhower/arduino-pico)                                            //
 //                                                                                                                //
 //   Recommended upload settings (Generic RP2350):                                                                //
-//       Flash Size: 2MB (No FS)   |   CPU Speed: 150 MHz   |   Optimize: -O3                                     //
+//       Flash Size: 2MB (Sketch: 1984KB, FS: 64KB)   |   CPU Speed: 150 MHz   |   Optimize: -O3                  //
+//   The FS partition holds the persistent motor-bias calibration (/bias.cfg) - see Bias_Config.ino.              //
+//   It survives reflashing; only a full-chip erase or changing the Flash Size layout clears it.                  //
 //________________________________________________________________________________________________________________//
 
 
@@ -94,9 +96,8 @@ bool rcMode = false;
 
 #define executePG digitalRead(START)
 
-// VX Alpha R1.00 L0.86
-const float RBias = 1.00;
-const float LBias = 0.945;
+// Motor biases (LBias/RBias for Auto, fl/fr/bl/brbias for RC) are defined in
+// Bias_Config.ino: loaded from LittleFS /bias.cfg at boot, tunable over serial.
 
 // Constants for delays
 unsigned long lastTurnTime = 0;
@@ -164,11 +165,14 @@ void setup() {
 
   delay(500);
 
+  biasConfigInit();  // load persistent motor biases from LittleFS (Bias_Config.ino)
+
   rcMode = (digitalRead(MODE) == HIGH);  // latch mode once at boot
   bootFlash(rcMode);                     // confirm mode: 2x blue = RC, 2x red = Auto
 }
 
 void loop() {
+  biasSerialTask();  // handle bias tuning commands from the Serial Monitor
   if (rcMode) {
     rcmode();    // RC mode: manual differential drive (see RC_Mode.ino)
   } else {
