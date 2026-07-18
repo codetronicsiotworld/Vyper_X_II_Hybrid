@@ -23,7 +23,7 @@
 //   reflashing; only a full-chip erase or changing the flash layout clears it.                                   //
 //________________________________________________________________________________________________________________//
 
-
+#include <LittleFS.h>
 #include <MotorControl.h>
 #include <Adafruit_NeoPixel.h>
 
